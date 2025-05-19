@@ -1,0 +1,189 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+// Описание структуры
+struct Person {
+    string name;
+    int age;
+    double salary;
+    Person* next;
+};
+
+// Функция для создания нового элемента
+Person* createPerson(string name, int age, double salary) {
+    Person* newPerson = new Person;
+    newPerson->name = name;
+    newPerson->age = age;
+    newPerson->salary = salary;
+    newPerson->next = nullptr;
+    return newPerson;
+}
+
+// Добавление элемента в начало списка
+void addToFront(Person* &head, string name, int age, double salary) {
+    Person* newPerson = createPerson(name, age, salary);
+    newPerson->next = head;
+    head = newPerson;
+}
+
+// Добавление элемента в конец списка
+void addToEnd(Person* &head, string name, int age, double salary) {
+    Person* newPerson = createPerson(name, age, salary);
+    
+    if (head == nullptr) {
+        head = newPerson;
+        return;
+    }
+    
+    Person* current = head;
+    while (current->next != nullptr) {
+        current = current->next;
+    }
+    current->next = newPerson;
+}
+
+// Поиск элемента по имени
+Person* findByName(Person* head, string name) {
+    Person* current = head;
+    while (current != nullptr) {
+        if (current->name == name) {
+            return current;
+        }
+        current = current->next;
+    }
+    return nullptr;
+}
+
+// Добавление элемента после заданного
+void addAfter(Person* &head, string targetName, string name, int age, double salary) {
+    Person* target = findByName(head, targetName);
+    if (target == nullptr) {
+        cout << "Person with name '" << targetName << "' not found." << endl;
+        return;
+    }
+    
+    Person* newPerson = createPerson(name, age, salary);
+    newPerson->next = target->next;
+    target->next = newPerson;
+}
+
+// Добавление элемента перед заданным
+void addBefore(Person* &head, string targetName, string name, int age, double salary) {
+    if (head == nullptr) {
+        cout << "List is empty." << endl;
+        return;
+    }
+    
+    if (head->name == targetName) {
+        addToFront(head, name, age, salary);
+        return;
+    }
+    
+    Person* prev = head;
+    Person* current = head->next;
+    
+    while (current != nullptr) {
+        if (current->name == targetName) {
+            Person* newPerson = createPerson(name, age, salary);
+            newPerson->next = current;
+            prev->next = newPerson;
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+    
+    cout << "Person with name '" << targetName << "' not found." << endl;
+}
+
+// Удаление элемента по имени
+void removeByName(Person* &head, string name) {
+    if (head == nullptr) {
+        cout << "List is empty." << endl;
+        return;
+    }
+    
+    if (head->name == name) {
+        Person* toDelete = head;
+        head = head->next;
+        delete toDelete;
+        return;
+    }
+    
+    Person* prev = head;
+    Person* current = head->next;
+    
+    while (current != nullptr) {
+        if (current->name == name) {
+            prev->next = current->next;
+            delete current;
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+    
+    cout << "Person with name '" << name << "' not found." << endl;
+}
+
+// Вывод списка на экран
+void printList(Person* head) {
+    if (head == nullptr) {
+        cout << "List is empty." << endl;
+        return;
+    }
+    
+    cout << "List contents:" << endl;
+    cout << "---------------------------------" << endl;
+    Person* current = head;
+    while (current != nullptr) {
+        cout << "Name: " << current->name << endl;
+        cout << "Age: " << current->age << endl;
+        cout << "Salary: " << current->salary << endl;
+        cout << "---------------------------------" << endl;
+        current = current->next;
+    }
+}
+
+// Освобождение памяти
+void deleteList(Person* &head) {
+    while (head != nullptr) {
+        Person* toDelete = head;
+        head = head->next;
+        delete toDelete;
+    }
+}
+// Главная функция
+int main() {
+    Person* head = nullptr;
+    
+    cout << "Creating initial list..." << endl;
+    addToEnd(head, "Alice", 25, 50000.0);
+    addToFront(head, "Bob", 30, 60000.0);
+    addToEnd(head, "Charlie", 35, 70000.0);
+    printList(head);
+    
+    cout << "\nAdding David after Bob..." << endl;
+    addAfter(head, "Bob", "David", 28, 55000.0);
+    printList(head);
+    
+    cout << "\nAdding Eve before Charlie..." << endl;
+    addBefore(head, "Charlie", "Eve", 32, 65000.0);
+    printList(head);
+    
+    cout << "\nRemoving Alice..." << endl;
+    removeByName(head, "Alice");
+    printList(head);
+    
+    cout << "\nTrying to remove non-existent person..." << endl;
+    removeByName(head, "Frank");
+    
+    cout << "\nFinal list:" << endl;
+    printList(head);
+    
+    deleteList(head);
+    
+    return 0;
+}
