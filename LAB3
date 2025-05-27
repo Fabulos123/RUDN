@@ -1,0 +1,256 @@
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+// Абстрактный класс Точка
+class Point {
+protected:
+    double x, y;
+public:
+    Point(double x = 0, double y = 0) : x(x), y(y) {}
+    virtual ~Point() {}
+    
+    // Чисто виртуальные методы
+    virtual void draw() const = 0;
+    virtual void hide() const = 0;
+    
+    void move(double dx, double dy) {
+        x += dx;
+        y += dy;
+    }
+    
+    virtual void print() const {
+        cout << "Point at (" << x << ", " << y << ")";
+    }
+    
+    double getX() const { return x; }
+    double getY() const { return y; }
+};
+
+// Класс Линия
+class Line : public Point {
+protected:
+    double x2, y2;
+public:
+    Line(double x1, double y1, double x2, double y2) 
+        : Point(x1, y1), x2(x2), y2(y2) {}
+    
+    void draw() const override {
+        cout << "Drawing line from (" << x << ", " << y 
+             << ") to (" << x2 << ", " << y2 << ")" << endl;
+    }
+    
+    void hide() const override {
+        cout << "Hiding line from (" << x << ", " << y 
+             << ") to (" << x2 << ", " << y2 << ")" << endl;
+    }
+    
+    void move(double dx, double dy) override {
+        Point::move(dx, dy);
+        x2 += dx;
+        y2 += dy;
+    }
+    
+    void rotate(double angle) {
+        double midX = (x + x2) / 2;
+        double midY = (y + y2) / 2;
+        
+        // Перенос в начало координат
+        x -= midX; y -= midY;
+        x2 -= midX; y2 -= midY;
+        
+        // Поворот
+        double rad = angle * M_PI / 180;
+        double newX = x * cos(rad) - y * sin(rad);
+        double newY = x * sin(rad) + y * cos(rad);
+        double newX2 = x2 * cos(rad) - y2 * sin(rad);
+        double newY2 = x2 * sin(rad) + y2 * cos(rad);
+        
+        // Обратный перенос
+        x = newX + midX; y = newY + midY;
+        x2 = newX2 + midX; y2 = newY2 + midY;
+    }
+    
+    void print() const override {
+        cout << "Line from (" << x << ", " << y 
+             << ") to (" << x2 << ", " << y2 << ")" << endl;
+    }
+};
+
+// Базовый класс Квадрат (для виртуального наследования)
+class SquareBase : virtual public Point {
+protected:
+    double side;
+public:
+    SquareBase(double x, double y, double side) 
+        : Point(x, y), side(side) {}
+    
+    void draw() const override {
+        cout << "Drawing square at (" << x << ", " << y 
+             << ") with side " << side << endl;
+    }
+    
+    void hide() const override {
+        cout << "Hiding square at (" << x << ", " << y 
+             << ") with side " << side << endl;
+    }
+    
+    void rotate(double angle) {
+        cout << "Rotating square by " << angle << " degrees" << endl;
+    }
+    
+    void print() const override {
+        cout << "Square at (" << x << ", " << y 
+             << ") with side " << side << endl;
+    }
+};
+
+// Класс Квадрат
+class Square : public SquareBase {
+public:
+    Square(double x, double y, double side) 
+        : Point(x, y), SquareBase(x, y, side) {}
+    
+    void print() const override {
+        cout << "Square at (" << x << ", " << y 
+             << ") with side " << side << endl;
+    }
+};
+
+// Класс Ромб
+class Rhombus : public SquareBase {
+protected:
+    double angle;
+public:
+    Rhombus(double x, double y, double side, double angle) 
+        : Point(x, y), SquareBase(x, y, side), angle(angle) {}
+    
+    void draw() const override {
+        cout << "Drawing rhombus at (" << x << ", " << y 
+             << ") with side " << side << " and angle " << angle << endl;
+    }
+    
+    void hide() const override {
+        cout << "Hiding rhombus at (" << x << ", " << y 
+             << ") with side " << side << " and angle " << angle << endl;
+    }
+    
+    void print() const override {
+        cout << "Rhombus at (" << x << ", " << y 
+             << ") with side " << side << " and angle " << angle << endl;
+    }
+};
+
+// Класс Прямоугольник
+class Rectangle : public SquareBase {
+protected:
+    double height;
+public:
+    Rectangle(double x, double y, double width, double height) 
+        : Point(x, y), SquareBase(x, y, width), height(height) {}
+    
+    void draw() const override {
+        cout << "Drawing rectangle at (" << x << ", " << y 
+             << ") with width " << side << " and height " << height << endl;
+    }
+    
+    void hide() const override {
+        cout << "Hiding rectangle at (" << x << ", " << y 
+             << ") with width " << side << " and height " << height << endl;
+    }
+    
+    void print() const override {
+        cout << "Rectangle at (" << x << ", " << y 
+             << ") with width " << side << " and height " << height << endl;
+    }
+};
+
+// Класс Параллелограмм (наследуется виртуально от SquareBase)
+class Parallelogram : virtual public SquareBase {
+protected:
+    double height;
+    double angle;
+public:
+    Parallelogram(double x, double y, double side, double height, double angle) 
+        : Point(x, y), SquareBase(x, y, side), height(height), angle(angle) {}
+    
+    void draw() const override {
+        cout << "Drawing parallelogram at (" << x << ", " << y 
+             << ") with side " << side << ", height " << height 
+             << " and angle " << angle << endl;
+    }
+    
+    void hide() const override {
+        cout << "Hiding parallelogram at (" << x << ", " << y 
+             << ") with side " << side << ", height " << height 
+             << " and angle " << angle << endl;
+    }
+    
+    void print() const override {
+        cout << "Parallelogram at (" << x << ", " << y 
+             << ") with side " << side << ", height " << height 
+             << " and angle " << angle << endl;
+    }
+};
+
+// Функция для демонстрации позднего связывания
+void demonstrateLateBinding(Point* shape) {
+    shape->draw();
+    shape->move(10, 10);
+    shape->hide();
+    shape->print();
+    cout << "---------------------" << endl;
+}
+
+int main() {
+    // Создание объектов
+    Line line(0, 0, 10, 10);
+    Square square(5, 5, 10);
+    Rhombus rhombus(3, 3, 8, 45);
+    Rectangle rectangle(2, 2, 10, 5);
+    Parallelogram parallelogram(1, 1, 12, 6, 30);
+    
+    // Демонстрация работы методов
+    line.draw();
+    line.rotate(45);
+    line.move(5, 5);
+    line.hide();
+    line.print();
+    cout << "---------------------" << endl;
+    
+    square.draw();
+    square.move(2, 2);
+    square.rotate(30);
+    square.hide();
+    square.print();
+    cout << "---------------------" << endl;
+    
+    rhombus.draw();
+    rhombus.move(3, 3);
+    rhombus.rotate(15);
+    rhombus.hide();
+    rhombus.print();
+    cout << "---------------------" << endl;
+    
+    rectangle.draw();
+    rectangle.move(4, 4);
+    rectangle.rotate(20);
+    rectangle.hide();
+    rectangle.print();
+    cout << "---------------------" << endl;
+    
+    parallelogram.draw();
+    parallelogram.move(5, 5);
+    parallelogram.rotate(10);
+    parallelogram.hide();
+    parallelogram.print();
+    cout << "---------------------" << endl;
+    
+    // Демонстрация позднего связывания
+    Point* shapes[] = {&line, &square, &rhombus, &rectangle, &parallelogram};
+    for (Point* shape : shapes) {
+        demonstrateLateBinding(shape);
+    }
+    
+    return 0;
+}
